@@ -1,0 +1,147 @@
+"use client";
+
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Shirt, Book, Utensils, Apple, PenTool, Box, CheckCircle, X, ArrowLeft } from "lucide-react";
+import { useState } from "react";
+
+export default function DonationPortal() {
+    const categories = [
+        { name: "Clothes", icon: Shirt, color: "text-blue-500", bg: "bg-blue-50" },
+        { name: "Books", icon: Book, color: "text-purple-500", bg: "bg-purple-50" },
+        { name: "Utensils", icon: Utensils, color: "text-green-500", bg: "bg-green-50" },
+        { name: "Food", icon: Apple, color: "text-red-500", bg: "bg-red-50" },
+        { name: "Stationery", icon: PenTool, color: "text-yellow-500", bg: "bg-yellow-50" },
+        { name: "Other", icon: Box, color: "text-slate-500", bg: "bg-slate-50" },
+    ];
+
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+    return (
+        <main className="min-h-screen bg-white font-sans">
+            <Navbar />
+
+            <div className="pt-24 pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="mb-6">
+                    <Link href="/" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-teal-600 transition-colors">
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Back to Home
+                    </Link>
+                </div>
+                <div className="text-center mb-16">
+                    <h1 className="text-3xl md:text-4xl font-heading font-bold text-slate-900 mb-4">Donation Portal</h1>
+                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                        Your contributions make a real difference. Select a category below to pledge physical goods to those in need.
+                    </p>
+                </div>
+
+                {/* Category Cards */}
+                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-16 max-w-5xl mx-auto">
+                    {categories.map((cat, idx) => (
+                        <div
+                            key={idx}
+                            onClick={() => setSelectedCategory(cat.name)}
+                            className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-md rounded-xl w-[140px] h-[100px] sm:w-[150px] sm:h-[110px] ${cat.bg} border border-[#00000008] ${selectedCategory === cat.name ? 'ring-2 ring-teal-500 shadow-sm' : ''}`}
+                        >
+                            <cat.icon className={`w-8 h-8 sm:w-10 sm:h-10 mb-2 sm:mb-3 ${cat.color}`} strokeWidth={1.5} />
+                            <span className={`text-xs sm:text-sm font-bold ${cat.color} brightness-90`}>{cat.name}</span>
+                        </div>
+                    ))}
+                </div>
+
+                {/* How Help Section */}
+                <div className="bg-orange-50 rounded-2xl p-8 md:p-12 border border-orange-100">
+                    <h2 className="text-xl font-bold text-slate-800 mb-2">How Your Donations Help</h2>
+                    <p className="text-slate-600 mb-8">Every contribution counts towards building a better community</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
+                        {[
+                            { step: "1", title: "Choose Category", desc: "Select the type of items you'd like to donate" },
+                            { step: "3", title: "We'll Contact You", desc: "Our team will reach out to arrange collection" },
+                            { step: "2", title: "Fill Details", desc: "Provide information about your donation" },
+                            { step: "4", title: "Make an Impact", desc: "Your items help those who need them most" },
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex items-start gap-4">
+                                <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">
+                                    {item.step}
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-slate-800 text-lg mb-1">{item.title}</h3>
+                                    <p className="text-slate-600 text-sm">{item.desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Donation Modal */}
+            {selectedCategory && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                        {/* Modal Header */}
+                        <div className="flex justify-between items-start p-6 pb-2 border-b border-slate-100">
+                            <div>
+                                <div className="flex items-center space-x-2">
+                                    {(() => {
+                                        const cat = categories.find(c => c.name === selectedCategory);
+                                        const Icon = cat?.icon || Box;
+                                        return <Icon className="w-5 h-5 text-slate-700" />;
+                                    })()}
+                                    <h2 className="text-xl font-bold text-slate-800">Donate {selectedCategory}</h2>
+                                </div>
+                                <p className="text-sm text-slate-500 mt-1">Fill in your details and we'll contact you to arrange collection</p>
+                            </div>
+                            <button onClick={() => setSelectedCategory(null)} className="text-slate-400 hover:text-slate-600 transition-colors p-1">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Modal Form */}
+                        <form className="p-6 space-y-4" onSubmit={(e) => { e.preventDefault(); setSelectedCategory(null); alert("Your pledge has been received! Our team will contact you shortly."); }}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-semibold text-slate-700">Your Name</label>
+                                    <input type="text" required placeholder="John Doe" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-semibold text-slate-700">Phone Number</label>
+                                    <input type="tel" required placeholder="+91 98765 43210" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-sm font-semibold text-slate-700">Email Address</label>
+                                <input type="email" required placeholder="john@example.com" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-semibold text-slate-700">Item Description</label>
+                                    <input type="text" required placeholder="e.g., Winter jackets, textbooks" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-semibold text-slate-700">Approximate Quantity</label>
+                                    <input type="text" required placeholder="e.g., 5 items, 2 boxes" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5 pb-2">
+                                <label className="text-sm font-semibold text-slate-700">Additional Notes</label>
+                                <textarea rows={2} placeholder="Any specific details about the items or preferred collection time..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm leading-relaxed"></textarea>
+                            </div>
+
+                            <div className="pt-2 flex justify-end">
+                                <button type="submit" className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors text-sm shadow-sm cursor-pointer">
+                                    Submit Pledge
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </main>
+    );
+}

@@ -23,7 +23,7 @@ export function CardTitle({ className, children, ...props }: React.HTMLAttribute
     return (
         <h3 className={`font-heading text-xl font-semibold leading-none tracking-tight text-slate-900 ${className}`} {...props}>
             {children}
-        </div>
+        </h3>
     );
 }
 

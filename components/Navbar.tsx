@@ -2,21 +2,54 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const navLinks = [
-    { name: "Campaigns", href: "/campaigns" },
-    { name: "Donate", href: "/donate" },
-    { name: "Impact", href: "/impact" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-];
-
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
+    const [role, setRole] = useState<string | null>(null);
+    const [vStatus, setVStatus] = useState<string | null>(null);
     const pathname = usePathname();
+
+    useEffect(() => {
+        setRole(localStorage.getItem("role"));
+        setVStatus(localStorage.getItem("volunteerStatus"));
+    }, []);
+
+    let navLinks = [
+        { name: "Campaigns", href: "/campaigns" },
+        { name: "Donate", href: "/donate" },
+        { name: "Contact", href: "/contact" },
+    ];
+
+    if (role === "local") {
+        navLinks = [
+            { name: "Campaigns", href: "/campaigns" },
+            { name: "Donate", href: "/donate" },
+            { name: "My Activity", href: "/my-activity" },
+            { name: "Contact", href: "/contact" },
+        ];
+    } else if (role === "volunteer") {
+        if (vStatus === "registered") {
+            navLinks = [
+                { name: "Current Events", href: "/campaigns" },
+                { name: "Dashboard", href: "/volunteer" },
+                { name: "Donate", href: "/donate" },
+                { name: "Contact", href: "/contact" },
+            ];
+        } else {
+            navLinks = [
+                { name: "Contact", href: "/contact" },
+            ];
+        }
+    }
+
+    const handleLogout = () => {
+        localStorage.removeItem("role");
+        setRole(null);
+        window.location.href = "/";
+    };
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-zinc-100">
@@ -53,24 +86,21 @@ export default function Navbar() {
                         <div className="h-6 w-px bg-zinc-200 mx-2" />
 
                         <div className="flex items-center space-x-3">
-                            <Link
-                                href="/public"
-                                className="px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 rounded-full hover:bg-teal-100 transition-colors"
-                            >
-                                Public
-                            </Link>
-                            <Link
-                                href="/admin"
-                                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors"
-                            >
-                                Admin
-                            </Link>
-                            <Link
-                                href="/volunteer"
-                                className="px-5 py-2 text-sm font-medium text-white bg-teal-500 rounded-full hover:bg-teal-600 transition-colors shadow-sm hover:shadow-md"
-                            >
-                                Volunteer
-                            </Link>
+                            {role ? (
+                                <button
+                                    onClick={handleLogout}
+                                    className="px-5 py-2 text-sm font-medium text-white bg-slate-600 rounded-full hover:bg-slate-700 transition-colors shadow-sm hover:shadow-md cursor-pointer"
+                                >
+                                    Logout
+                                </button>
+                            ) : (
+                                <Link
+                                    href="/login"
+                                    className="px-5 py-2 text-sm font-medium text-white bg-teal-600 rounded-full hover:bg-teal-700 transition-colors shadow-sm hover:shadow-md"
+                                >
+                                    Login
+                                </Link>
+                            )}
                         </div>
                     </div>
 
@@ -107,25 +137,26 @@ export default function Navbar() {
                                 </Link>
                             ))}
                             <div className="h-px bg-zinc-100 my-4" />
-                            <div className="grid grid-cols-2 gap-3 px-2">
-                                <Link
-                                    href="/public"
-                                    className="flex justify-center px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 rounded-md"
-                                >
-                                    Public
-                                </Link>
-                                <Link
-                                    href="/admin"
-                                    className="flex justify-center px-4 py-2 text-sm font-medium text-slate-700 bg-slate-50 rounded-md"
-                                >
-                                    Admin
-                                </Link>
-                                <Link
-                                    href="/volunteer"
-                                    className="col-span-2 flex justify-center px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md shadow-sm"
-                                >
-                                    Volunteer
-                                </Link>
+                            <div className="px-2">
+                                {role ? (
+                                    <button
+                                        onClick={() => {
+                                            setIsOpen(false);
+                                            handleLogout();
+                                        }}
+                                        className="w-full block text-center px-4 py-2 text-sm font-medium text-white bg-slate-600 rounded-md shadow-sm hover:bg-slate-700 cursor-pointer"
+                                    >
+                                        Logout
+                                    </button>
+                                ) : (
+                                    <Link
+                                        href="/login"
+                                        className="block text-center px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md shadow-sm hover:bg-teal-700"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Login
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </motion.div>

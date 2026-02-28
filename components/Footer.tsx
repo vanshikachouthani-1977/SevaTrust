@@ -5,7 +5,7 @@ import { Heart, Facebook, Twitter, Instagram, Linkedin, Mail, ArrowRight } from 
 
 export default function Footer() {
     return (
-        <footer className="bg-slate-900 text-white pt-16 pb-8">
+        <footer id="contact" className="bg-slate-900 text-white pt-16 pb-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-12">
 
@@ -44,10 +44,16 @@ export default function Footer() {
                     <div className="lg:col-span-2 col-span-1">
                         <h3 className="font-heading font-semibold text-lg mb-6">Discovery</h3>
                         <ul className="space-y-4">
-                            {['Campaigns', 'Donate', 'Impact', 'About Us', 'Contact'].map((item) => (
-                                <li key={item}>
-                                    <Link href="#" className="text-slate-400 hover:text-teal-400 transition-colors">
-                                        {item}
+                            {[
+                                { name: 'Campaigns', path: '/#campaigns' },
+                                { name: 'Donate', path: '/donate' },
+                                { name: 'Impact', path: '/#impact' },
+                                { name: 'About Us', path: '/about' },
+                                { name: 'Contact', path: '/#contact' }
+                            ].map((item) => (
+                                <li key={item.name}>
+                                    <Link href={item.path} className="text-slate-400 hover:text-teal-400 transition-colors">
+                                        {item.name}
                                     </Link>
                                 </li>
                             ))}
