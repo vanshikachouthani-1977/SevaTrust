@@ -7,22 +7,24 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Calendar, Clock, HandMetal, Heart, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function VolunteerDashboard() {
     const router = useRouter();
-    const [role, setRole] = useState<string | null>("loading");
+    const { role, loading } = useAuth();
 
     useEffect(() => {
-        const currentRole = localStorage.getItem("role");
+        if (loading) return;
+        
+        // Still reading volunteerStatus from local storage for now as requested
         const vStatus = localStorage.getItem("volunteerStatus");
-        setRole(currentRole);
 
-        if (!currentRole || (currentRole === "volunteer" && vStatus !== "registered")) {
+        if (!role || (role === "volunteer" && vStatus !== "registered")) {
             router.push("/volunteer/register");
         }
-    }, [router]);
+    }, [role, loading, router]);
 
-    if (role === "loading") return null;
+    if (loading || !role) return null;
 
     const upcomingTasks = [
         {

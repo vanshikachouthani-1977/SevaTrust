@@ -1,9 +1,42 @@
+"use client";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { ArrowRight, Target, Eye, Users, HeartHandshake, Globe } from "lucide-react";
+import { useEffect, useState } from "react";
+import { db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function HomePage() {
+  const [stats, setStats] = useState({
+    livesImpacted: "10,000+",
+    yearsActive: "15+",
+    activeProjects: "50+",
+    volunteers: "2K+"
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const docRef = doc(db, "site_config", "homepage");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setStats(prev => ({
+            livesImpacted: data.livesImpacted || prev.livesImpacted,
+            yearsActive: data.yearsActive || prev.yearsActive,
+            activeProjects: data.activeProjects || prev.activeProjects,
+            volunteers: data.volunteers || prev.volunteers
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching homepage stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
+
   return (
     <main className="min-h-screen bg-white font-sans selection:bg-teal-100 selection:text-teal-900">
       <Navbar />
@@ -57,8 +90,8 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="bg-white/90 backdrop-blur p-4 rounded-xl shadow-lg inline-block">
-                    <p className="text-teal-700 font-bold text-2xl font-heading">10,000+</p>
-                    <p className="text-slate-600 text-sm font-medium">Lives Impacted in 2025</p>
+                    <p className="text-teal-700 font-bold text-2xl font-heading">{stats.livesImpacted}</p>
+                    <p className="text-slate-600 text-sm font-medium">Lives Impacted</p>
                   </div>
                 </div>
               </div>
@@ -128,15 +161,15 @@ export default function HomePage() {
 
               <div className="grid grid-cols-3 gap-6 text-center border-t border-slate-200 pt-8">
                 <div>
-                  <div className="text-3xl font-bold text-teal-600 font-heading">15+</div>
+                  <div className="text-3xl font-bold text-teal-600 font-heading">{stats.yearsActive}</div>
                   <div className="text-sm font-semibold text-slate-500 mt-1">Years Active</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-orange-500 font-heading">50+</div>
+                  <div className="text-3xl font-bold text-orange-500 font-heading">{stats.activeProjects}</div>
                   <div className="text-sm font-semibold text-slate-500 mt-1">Active Projects</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-teal-600 font-heading">2K+</div>
+                  <div className="text-3xl font-bold text-teal-600 font-heading">{stats.volunteers}</div>
                   <div className="text-sm font-semibold text-slate-500 mt-1">Volunteers</div>
                 </div>
               </div>

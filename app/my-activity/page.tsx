@@ -5,20 +5,19 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Calendar, Droplets, BookOpen, Utensils, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function MyActivityPage() {
     const router = useRouter();
-    const [role, setRole] = useState<string | null>("loading");
+    const { role, loading } = useAuth();
 
     useEffect(() => {
-        const currentRole = localStorage.getItem("role");
-        setRole(currentRole);
-        if (!currentRole) {
+        if (!loading && !role) {
             router.push("/");
         }
-    }, [router]);
+    }, [role, loading, router]);
 
-    if (role === "loading") return null;
+    if (loading || !role) return null;
 
     const donationHistory = [
         {

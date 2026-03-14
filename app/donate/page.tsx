@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Shirt, Book, Utensils, Apple, PenTool, Box, CheckCircle, X, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function DonationPortal() {
     const categories = [
@@ -18,6 +20,45 @@ export default function DonationPortal() {
     ];
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Form state
+    const [name, setName] = useState("");
+    const [phone, setPhone] = useState("");
+    const [email, setEmail] = useState("");
+    const [description, setDescription] = useState("");
+    const [quantity, setQuantity] = useState("");
+    const [notes, setNotes] = useState("");
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            await addDoc(collection(db, "donations"), {
+                category: selectedCategory,
+                name,
+                phone,
+                email,
+                description,
+                quantity,
+                notes,
+                createdAt: serverTimestamp()
+            });
+            alert("Your pledge has been received! Our team will contact you shortly.");
+            setSelectedCategory(null);
+            setName("");
+            setPhone("");
+            setEmail("");
+            setDescription("");
+            setQuantity("");
+            setNotes("");
+        } catch (error) {
+            console.error("Error submitting donation:", error);
+            alert("There was an error submitting your pledge. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <main className="min-h-screen bg-white font-sans">
@@ -100,42 +141,42 @@ export default function DonationPortal() {
                         </div>
 
                         {/* Modal Form */}
-                        <form className="p-6 space-y-4" onSubmit={(e) => { e.preventDefault(); setSelectedCategory(null); alert("Your pledge has been received! Our team will contact you shortly."); }}>
+                        <form className="p-6 space-y-4" onSubmit={handleSubmit}>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-semibold text-slate-700">Your Name</label>
-                                    <input type="text" required placeholder="John Doe" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                    <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-semibold text-slate-700">Phone Number</label>
-                                    <input type="tel" required placeholder="+91 98765 43210" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                    <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
                                 <label className="text-sm font-semibold text-slate-700">Email Address</label>
-                                <input type="email" required placeholder="john@example.com" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@example.com" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-semibold text-slate-700">Item Description</label>
-                                    <input type="text" required placeholder="e.g., Winter jackets, textbooks" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                    <input type="text" required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., Winter jackets, textbooks" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-semibold text-slate-700">Approximate Quantity</label>
-                                    <input type="text" required placeholder="e.g., 5 items, 2 boxes" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                    <input type="text" required value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="e.g., 5 items, 2 boxes" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
                                 </div>
                             </div>
 
                             <div className="space-y-1.5 pb-2">
                                 <label className="text-sm font-semibold text-slate-700">Additional Notes</label>
-                                <textarea rows={2} placeholder="Any specific details about the items or preferred collection time..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm leading-relaxed"></textarea>
+                                <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any specific details about the items or preferred collection time..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm leading-relaxed"></textarea>
                             </div>
 
                             <div className="pt-2 flex justify-end">
-                                <button type="submit" className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors text-sm shadow-sm cursor-pointer">
-                                    Submit Pledge
+                                <button type="submit" disabled={isSubmitting} className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors text-sm shadow-sm cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
+                                    {isSubmitting ? 'Submitting...' : 'Submit Pledge'}
                                 </button>
                             </div>
                         </form>

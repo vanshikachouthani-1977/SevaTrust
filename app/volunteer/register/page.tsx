@@ -7,13 +7,34 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import { User, Mail, Phone, MapPin, CheckCircle, Upload, ShieldCheck, Clock, CreditCard, ArrowLeft } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+import { db, storage } from "@/lib/firebase";
+import { doc, updateDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export default function VolunteerRegisterPage() {
     const router = useRouter();
+    const { user } = useAuth();
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Step 1: Personal Info
+    const [fullName, setFullName] = useState("");
+    const [gender, setGender] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [city, setCity] = useState("");
+    const [address, setAddress] = useState("");
+
+    // Step 2: Verification
+    const [aadhaarNumber, setAadhaarNumber] = useState("");
     const [aadhaarFile, setAadhaarFile] = useState<File | null>(null);
     const [photoFile, setPhotoFile] = useState<File | null>(null);
+
+    // Step 3: Availability
+    const [availableDays, setAvailableDays] = useState<string[]>([]);
+    const [interest, setInterest] = useState("Education & Mentoring");
+    const [hoursPerMonth, setHoursPerMonth] = useState("");
 
     const handleNext = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -35,15 +56,67 @@ export default function VolunteerRegisterPage() {
         window.scrollTo(0, 0);
     };
 
-    const handleComplete = (e: React.FormEvent) => {
+    const handleComplete = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!user) {
+            alert("Please log in to complete registration.");
+            router.push("/login");
+            return;
+        }
+
+        if (!aadhaarFile || !photoFile) {
+            alert("Please upload both Aadhaar card and Passport size photo.");
+            return;
+        }
+
         setIsSubmitting(true);
-        // Simulate registration process
-        setTimeout(() => {
-            localStorage.setItem("volunteerStatus", "registered");
+        try {
+            // 1. Upload files to Storage
+            const aadhaarRef = ref(storage, `volunteers/${user.uid}/aadhaar_${aadhaarFile.name}`);
+            const photoRef = ref(storage, `volunteers/${user.uid}/photo_${photoFile.name}`);
+            
+            await uploadBytes(aadhaarRef, aadhaarFile);
+            await uploadBytes(photoRef, photoFile);
+            
+            const aadhaarUrl = await getDownloadURL(aadhaarRef);
+            const photoUrl = await getDownloadURL(photoRef);
+
+            // 2. Save application to Firestore
+            await addDoc(collection(db, "volunteer_applications"), {
+                userId: user.uid,
+                fullName,
+                gender,
+                email,
+                phone,
+                city,
+                address,
+                aadhaarNumber,
+                aadhaarUrl,
+                photoUrl,
+                availableDays,
+                interest,
+                hoursPerMonth,
+                status: "pending_review",
+                createdAt: serverTimestamp()
+            });
+
+            // 3. Update user's role/status in users collection
+            const userRef = doc(db, "users", user.uid);
+            await updateDoc(userRef, {
+                volunteerStatus: "registered"
+            });
+
+            alert("Registration complete! Welcome to the volunteer network.");
             router.push("/volunteer");
-        }, 1500);
+        } catch (error) {
+            console.error("Registration error:", error);
+            alert("There was an error completing your registration. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
 
     return (
         <main className="min-h-screen bg-slate-50 font-sans pb-16">
@@ -106,11 +179,11 @@ export default function VolunteerRegisterPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-sm font-semibold text-slate-700">Full Name</label>
-                                        <input type="text" required placeholder="John Doe" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                                        <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="John Doe" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-semibold text-slate-700">Gender</label>
-                                        <select required className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 cursor-pointer">
+                                        <select required value={gender} onChange={(e) => setGender(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 cursor-pointer">
                                             <option value="">Select Gender</option>
                                             <option value="male">Male</option>
                                             <option value="female">Female</option>
@@ -126,7 +199,7 @@ export default function VolunteerRegisterPage() {
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <Mail className="h-4 w-4 text-slate-400" />
                                             </div>
-                                            <input type="email" required placeholder="john@example.com" className="w-full pl-10 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                                            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@example.com" className="w-full pl-10 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
@@ -135,7 +208,7 @@ export default function VolunteerRegisterPage() {
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <Phone className="h-4 w-4 text-slate-400" />
                                             </div>
-                                            <input type="tel" required placeholder="+91" className="w-full pl-10 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                                            <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91" className="w-full pl-10 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
                                         </div>
                                     </div>
                                 </div>
@@ -143,7 +216,7 @@ export default function VolunteerRegisterPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-sm font-semibold text-slate-700">City</label>
-                                        <input type="text" required placeholder="e.g. Mumbai" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
+                                        <input type="text" required value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Mumbai" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-semibold text-slate-700">Full Address Location</label>
@@ -151,7 +224,7 @@ export default function VolunteerRegisterPage() {
                                             <div className="absolute inset-y-0 left-0 pl-3 pt-3 pointer-events-none">
                                                 <MapPin className="h-4 w-4 text-slate-400" />
                                             </div>
-                                            <textarea rows={2} required placeholder="Street address, area..." className="w-full pl-10 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"></textarea>
+                                            <textarea rows={2} required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street address, area..." className="w-full pl-10 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -178,6 +251,8 @@ export default function VolunteerRegisterPage() {
                                         <input
                                             type="text"
                                             required
+                                            value={aadhaarNumber}
+                                            onChange={(e) => setAadhaarNumber(e.target.value)}
                                             placeholder="XXXX XXXX XXXX"
                                             pattern="[0-9\s]{12,14}"
                                             className="w-full font-mono px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-lg tracking-wider text-slate-900"
@@ -275,7 +350,15 @@ export default function VolunteerRegisterPage() {
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                             {['Weekdays', 'Weekends', 'Mornings', 'Evenings'].map((time) => (
                                                 <label key={time} className="flex items-center space-x-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 bg-white">
-                                                    <input type="checkbox" className="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500" />
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={availableDays.includes(time)}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) setAvailableDays([...availableDays, time]);
+                                                            else setAvailableDays(availableDays.filter(d => d !== time));
+                                                        }}
+                                                        className="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500" 
+                                                    />
                                                     <span className="text-sm font-medium text-slate-700">{time}</span>
                                                 </label>
                                             ))}
@@ -284,7 +367,7 @@ export default function VolunteerRegisterPage() {
 
                                     <div className="space-y-3">
                                         <label className="text-sm font-semibold text-slate-700">Areas of Interest</label>
-                                        <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer text-slate-900">
+                                        <select value={interest} onChange={(e) => setInterest(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer text-slate-900">
                                             <option>Education & Mentoring</option>
                                             <option>Environment & Sustainability</option>
                                             <option>Healthcare Camps</option>
@@ -297,7 +380,12 @@ export default function VolunteerRegisterPage() {
                                         <label className="text-sm font-semibold text-slate-700">How many hours can you dedicate per month?</label>
                                         <div className="flex bg-slate-50 rounded-lg border border-slate-200 overflow-hidden p-1">
                                             {['Less than 5h', '5 - 15h', '15 - 30h', '30h+'].map((hours) => (
-                                                <button key={hours} type="button" className="flex-1 py-2 text-sm font-medium text-slate-600 hover:bg-white hover:text-teal-600 rounded transition-colors focus:bg-white focus:text-teal-600 focus:shadow-sm">
+                                                <button 
+                                                    key={hours} 
+                                                    type="button" 
+                                                    onClick={() => setHoursPerMonth(hours)}
+                                                    className={`flex-1 py-2 text-sm font-medium rounded transition-colors ${hoursPerMonth === hours ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-600 hover:bg-white hover:text-teal-600 focus:bg-white focus:text-teal-600 focus:shadow-sm'}`}
+                                                >
                                                     {hours}
                                                 </button>
                                             ))}

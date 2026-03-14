@@ -16,6 +16,7 @@ export const metadata: Metadata = {
   title: "SevaTrust - Empowering Communities",
   description: "Non-profit organization dedicated to social welfare and community development.",
 };
+import { AuthProvider } from "@/lib/AuthContext";
 
 export default function RootLayout({
   children,
@@ -27,7 +28,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${outfit.variable} antialiased`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

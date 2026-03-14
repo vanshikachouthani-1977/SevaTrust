@@ -2,20 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Menu, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/lib/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function Navbar() {
+    const { user, role, loading } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
-    const [role, setRole] = useState<string | null>(null);
     const [vStatus, setVStatus] = useState<string | null>(null);
     const pathname = usePathname();
 
-    useEffect(() => {
-        setRole(localStorage.getItem("role"));
-        setVStatus(localStorage.getItem("volunteerStatus"));
-    }, []);
+    // Still checking volunteerStatus from localStorage temporarily if needed, 
+    // or this should also ideally move to Firestore. 
+    // We'll keep it as is since instructions only specified migrating "role".
+    useState(() => {
+        if (typeof window !== "undefined") {
+            setVStatus(localStorage.getItem("volunteerStatus"));
+        }
+    });
 
     let navLinks = [
         { name: "Campaigns", href: "/campaigns" },
@@ -45,10 +52,13 @@ export default function Navbar() {
         }
     }
 
-    const handleLogout = () => {
-        localStorage.removeItem("role");
-        setRole(null);
-        window.location.href = "/";
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            localStorage.removeItem("volunteerStatus"); // Clear anything auxiliary
+        } catch (error) {
+            console.error("Logout error", error);
+        }
     };
 
     return (
@@ -86,7 +96,9 @@ export default function Navbar() {
                         <div className="h-6 w-px bg-zinc-200 mx-2" />
 
                         <div className="flex items-center space-x-3">
-                            {role ? (
+                            {loading ? (
+                                <div className="h-9 w-20 bg-slate-200 animate-pulse rounded-full"></div>
+                            ) : user ? (
                                 <button
                                     onClick={handleLogout}
                                     className="px-5 py-2 text-sm font-medium text-white bg-slate-600 rounded-full hover:bg-slate-700 transition-colors shadow-sm hover:shadow-md cursor-pointer"
@@ -138,7 +150,9 @@ export default function Navbar() {
                             ))}
                             <div className="h-px bg-zinc-100 my-4" />
                             <div className="px-2">
-                                {role ? (
+                                {loading ? (
+                                    <div className="h-9 w-full bg-slate-200 animate-pulse rounded-md"></div>
+                                ) : user ? (
                                     <button
                                         onClick={() => {
                                             setIsOpen(false);
