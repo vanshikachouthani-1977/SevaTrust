@@ -32,7 +32,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 
                 unsubSnapshot = onSnapshot(userDocRef, (docSnap) => {
                     if (docSnap.exists()) {
-                        setRole(docSnap.data().role);
+                        const dbRole = docSnap.data().role;
+                        setRole(typeof dbRole === "string" ? dbRole.trim().toLowerCase() : dbRole);
                     } else {
                         setRole(null);
                     }

@@ -27,7 +27,9 @@ export default function LoginPage() {
             const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
             
             if (userDoc.exists()) {
-                const userRole = userDoc.data().role;
+                const rawRole = userDoc.data().role;
+                const userRole = typeof rawRole === "string" ? rawRole.trim().toLowerCase() : rawRole;
+                
                 if (userRole === "admin") {
                     router.push("/admin");
                 } else if (userRole === "local") {
