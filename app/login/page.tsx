@@ -28,7 +28,9 @@ export default function LoginPage() {
             
             if (userDoc.exists()) {
                 const userRole = userDoc.data().role;
-                if (userRole === "local") {
+                if (userRole === "admin") {
+                    router.push("/admin");
+                } else if (userRole === "local") {
                     router.push("/campaigns");
                 } else if (userRole === "volunteer") {
                     router.push("/volunteer");
