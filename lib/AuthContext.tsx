@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "./firebase";
 
 interface AuthContextType {
@@ -23,28 +23,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        let unsubSnapshot: () => void;
+
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             if (currentUser) {
-                try {
-                    const userDocRef = doc(db, "users", currentUser.uid);
-                    const userDoc = await getDoc(userDocRef);
-                    if (userDoc.exists()) {
-                        setRole(userDoc.data().role);
+                const userDocRef = doc(db, "users", currentUser.uid);
+                
+                unsubSnapshot = onSnapshot(userDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        setRole(docSnap.data().role);
                     } else {
                         setRole(null);
                     }
-                } catch (error) {
-                    console.error("Error fetching user role:", error);
+                    setLoading(false);
+                }, (error) => {
+                    console.error("Error fetching user role realtime:", error);
                     setRole(null);
-                }
+                    setLoading(false);
+                });
             } else {
                 setRole(null);
+                setLoading(false);
+                if (unsubSnapshot) unsubSnapshot();
             }
-            setLoading(false);
         });
 
-        return () => unsubscribe();
+        return () => {
+            unsubscribe();
+            if (unsubSnapshot) unsubSnapshot();
+        };
     }, []);
 
     return (
