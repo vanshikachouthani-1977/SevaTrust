@@ -103,6 +103,11 @@ export default function Navbar() {
                         <div className="h-6 w-px bg-zinc-200 mx-2" />
 
                         <div className="flex items-center space-x-3">
+                            {/* DEMO DEBUG PILL */}
+                            <div className="text-xs font-mono bg-amber-100 text-amber-800 px-2 py-1 rounded">
+                                Role: {role || "null"} | {user?.email || "No User"}
+                            </div>
+                            
                             {loading ? (
                                 <div className="h-9 w-20 bg-slate-200 animate-pulse rounded-full"></div>
                             ) : user ? (
@@ -145,6 +150,11 @@ export default function Navbar() {
                         className="md:hidden bg-white border-b border-zinc-100 overflow-hidden"
                     >
                         <div className="px-4 pt-2 pb-6 space-y-2">
+                            {/* DEMO DEBUG PILL */}
+                            <div className="text-xs font-mono bg-amber-100 text-amber-800 px-3 py-2 rounded mb-2 text-center">
+                                Role: {role || "null"} | {user?.email || "No User"}
+                            </div>
+                            
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.name}
