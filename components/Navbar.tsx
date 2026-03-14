@@ -37,6 +37,13 @@ export default function Navbar() {
             { name: "My Activity", href: "/my-activity" },
             { name: "Contact", href: "/contact" },
         ];
+    } else if (role === "admin") {
+        navLinks = [
+            { name: "Campaigns", href: "/campaigns" },
+            { name: "Admin Panel", href: "/admin" },
+            { name: "Donate", href: "/donate" },
+            { name: "Contact", href: "/contact" },
+        ];
     } else if (role === "volunteer") {
         if (vStatus === "registered") {
             navLinks = [
