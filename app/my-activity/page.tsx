@@ -2,14 +2,17 @@
 
 import Navbar from "@/components/Navbar";
 import { Card, CardContent } from "@/components/ui/Card";
-import { Calendar, Droplets, BookOpen, Utensils, Heart } from "lucide-react";
+import { Calendar, Droplets, BookOpen, Utensils, Heart, Shirt, Apple, PenTool, Box, CheckCircle, Clock, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
+import { db } from "@/lib/firebase";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 
 export default function MyActivityPage() {
     const router = useRouter();
-    const { role, loading } = useAuth();
+    const { user, role, loading } = useAuth();
+    const [donations, setDonations] = useState<any[]>([]);
 
     useEffect(() => {
         if (!loading && !role) {
@@ -17,37 +20,48 @@ export default function MyActivityPage() {
         }
     }, [role, loading, router]);
 
+    useEffect(() => {
+        if (!user) return;
+        const q = query(
+            collection(db, "donations"),
+            where("userId", "==", user.uid)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            data.sort((a: any, b: any) => {
+                const dateA = a.createdAt?.toMillis() || 0;
+                const dateB = b.createdAt?.toMillis() || 0;
+                return dateB - dateA;
+            });
+            setDonations(data);
+        });
+
+        return () => unsubscribe();
+    }, [user]);
+
     if (loading || !role) return null;
 
-    const donationHistory = [
-        {
-            id: "DON-2024-089",
-            campaign: "Clean Water Initiative",
-            date: "Feb 15, 2026",
-            amount: "₹5,000",
-            icon: Droplets,
-            color: "text-blue-500",
-            bg: "bg-blue-50"
-        },
-        {
-            id: "DON-2024-042",
-            campaign: "Digital Education Program",
-            date: "Jan 22, 2026",
-            amount: "₹2,500",
-            icon: BookOpen,
-            color: "text-indigo-500",
-            bg: "bg-indigo-50"
-        },
-        {
-            id: "DON-2023-112",
-            campaign: "Winter Food Drive",
-            date: "Dec 10, 2025",
-            amount: "₹1,000",
-            icon: Utensils,
-            color: "text-orange-500",
-            bg: "bg-orange-50"
+    const totalCategories = new Set(donations.map(d => d.category)).size;
+    
+    // Parse the creation date from user metadata if available
+    const memberSince = user?.metadata?.creationTime 
+        ? new Date(user.metadata.creationTime).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
+        : "Recently";
+
+    const getCategoryStyles = (category: string) => {
+        switch (category) {
+            case "Clothes": return { icon: Shirt, color: "text-blue-500", bg: "bg-blue-50" };
+            case "Books": return { icon: BookOpen, color: "text-purple-500", bg: "bg-purple-50" };
+            case "Utensils": return { icon: Utensils, color: "text-green-500", bg: "bg-green-50" };
+            case "Food": return { icon: Apple, color: "text-red-500", bg: "bg-red-50" };
+            case "Stationery": return { icon: PenTool, color: "text-yellow-500", bg: "bg-yellow-50" };
+            default: return { icon: Box, color: "text-slate-500", bg: "bg-slate-50" };
         }
-    ];
+    };
 
     return (
         <main className="min-h-screen bg-slate-50 font-sans">
@@ -61,73 +75,110 @@ export default function MyActivityPage() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <Card className="bg-white border-slate-100 shadow-sm">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-sm font-medium text-slate-500">Total Donated</h3>
-                                <div className="p-2 bg-teal-50 rounded-lg text-teal-600">
-                                    <Heart className="w-5 h-5" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    <Card className="bg-white border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 rounded-2xl group overflow-hidden relative">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                            <Heart className="w-32 h-32" />
+                        </div>
+                        <CardContent className="p-8 relative z-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-sm font-bold tracking-wider uppercase text-slate-500">Total Pledges</h3>
+                                <div className="p-3 bg-teal-50 border border-teal-100 rounded-xl text-teal-600 shadow-sm">
+                                    <Heart className="w-5 h-5 fill-current" />
                                 </div>
                             </div>
-                            <div className="text-3xl font-bold text-slate-900">₹8,500</div>
+                            <div className="text-4xl font-extrabold text-slate-900">{donations.length}</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white border-slate-100 shadow-sm">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-sm font-medium text-slate-500">Campaigns Supported</h3>
-                                <div className="p-2 bg-orange-50 rounded-lg text-orange-600">
+                    <Card className="bg-white border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 rounded-2xl group overflow-hidden relative">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                            <BookOpen className="w-32 h-32" />
+                        </div>
+                        <CardContent className="p-8 relative z-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-sm font-bold tracking-wider uppercase text-slate-500">Categories Supported</h3>
+                                <div className="p-3 bg-orange-50 border border-orange-100 rounded-xl text-orange-500 shadow-sm">
                                     <BookOpen className="w-5 h-5" />
                                 </div>
                             </div>
-                            <div className="text-3xl font-bold text-slate-900">3</div>
+                            <div className="text-4xl font-extrabold text-slate-900">{totalCategories}</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white border-slate-100 shadow-sm">
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-sm font-medium text-slate-500">Member Since</h3>
-                                <div className="p-2 bg-slate-50 rounded-lg text-slate-600">
+                    <Card className="bg-white border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 rounded-2xl group overflow-hidden relative">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                            <Calendar className="w-32 h-32" />
+                        </div>
+                        <CardContent className="p-8 relative z-10">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-sm font-bold tracking-wider uppercase text-slate-500">Member Since</h3>
+                                <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl text-blue-500 shadow-sm">
                                     <Calendar className="w-5 h-5" />
                                 </div>
                             </div>
-                            <div className="text-xl font-bold text-slate-900 mt-2">Dec 2025</div>
+                            <div className="text-2xl font-bold text-slate-900 mt-2">{memberSince}</div>
                         </CardContent>
                     </Card>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div className="px-6 py-5 border-b border-slate-100">
-                        <h2 className="text-lg font-bold text-slate-900">Donation History</h2>
+                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden">
+                    <div className="px-8 py-6 border-b border-slate-100 bg-slate-50/50">
+                        <h2 className="text-xl font-bold text-slate-900">Donation History</h2>
                     </div>
                     <div className="divide-y divide-slate-100">
-                        {donationHistory.map((donation, index) => {
-                            const Icon = donation.icon;
-                            return (
-                                <div key={index} className="px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                                    <div className="flex items-center space-x-4">
-                                        <div className={`p-3 rounded-full ${donation.bg} ${donation.color}`}>
-                                            <Icon className="w-6 h-6" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-sm font-bold text-slate-900">{donation.campaign}</h3>
-                                            <div className="flex items-center text-xs text-slate-500 mt-1">
-                                                <span className="mr-3">{donation.id}</span>
-                                                <span className="flex items-center">
-                                                    <Calendar className="w-3 h-3 mr-1" />
-                                                    {donation.date}
-                                                </span>
+                        {donations.length === 0 ? (
+                            <div className="px-8 py-16 text-center">
+                                <div className="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Box className="w-8 h-8" />
+                                </div>
+                                <h3 className="text-lg font-bold text-slate-900 mb-2">No donations yet</h3>
+                                <p className="text-slate-500 max-w-sm mx-auto">Start making an impact today by browsing our campaigns and donating items.</p>
+                            </div>
+                        ) : (
+                            donations.map((donation, index) => {
+                                const styles = getCategoryStyles(donation.category);
+                                const Icon = styles.icon;
+                                const dateFormatted = donation.createdAt?.toDate 
+                                    ? donation.createdAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                                    : 'Just now';
+                                
+                                return (
+                                    <div key={donation.id || index} className="px-8 py-6 flex flex-col md:flex-row md:items-center justify-between hover:bg-slate-50/80 transition-colors gap-6 border-l-4 border-transparent hover:border-teal-500">
+                                        <div className="flex items-center space-x-6">
+                                            <div className={`p-4 rounded-2xl ${styles.bg} ${styles.color} shadow-sm border border-slate-50`}>
+                                                <Icon className="w-7 h-7" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-base font-bold text-slate-900 mb-1">{donation.category} Donation</h3>
+                                                <div className="text-sm font-medium text-slate-600 mb-1">
+                                                    <span className="text-slate-800">{donation.description}</span> <span className="text-slate-300 mx-1">•</span> Qty: {donation.quantity}
+                                                </div>
+                                                <div className="flex items-center text-xs font-semibold text-slate-400">
+                                                    <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                                                    {dateFormatted}
+                                                </div>
                                             </div>
                                         </div>
+                                        <div className="flex items-center gap-2">
+                                            {donation.status === "pending" && (
+                                                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm">
+                                                    <Clock className="w-3.5 h-3.5 mr-1.5" /> Pending Review
+                                                </span>
+                                            )}
+                                            {donation.status === "accepted" && (
+                                                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">
+                                                    <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Accepted
+                                                </span>
+                                            )}
+                                            {donation.status === "rejected" && (
+                                                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200 shadow-sm">
+                                                    <XCircle className="w-3.5 h-3.5 mr-1.5" /> Declined
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-lg font-bold text-teal-600">{donation.amount}</div>
-                                        <div className="text-xs text-slate-500 mt-1">Successful</div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })
+                        )}
                     </div>
                 </div>
             </div>

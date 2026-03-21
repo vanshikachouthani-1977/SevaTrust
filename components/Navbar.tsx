@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Menu, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,6 +14,7 @@ export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [vStatus, setVStatus] = useState<string | null>(null);
     const pathname = usePathname();
+    const router = useRouter();
 
     // Still checking volunteerStatus from localStorage temporarily if needed, 
     // or this should also ideally move to Firestore. 
@@ -40,29 +41,23 @@ export default function Navbar() {
     } else if (role === "admin") {
         navLinks = [
             { name: "Campaigns", href: "/campaigns" },
-            { name: "Admin Panel", href: "/admin" },
+            { name: "Incoming Donations", href: "/admin/donations" },
+            { name: "Volunteers", href: "/admin/volunteers" },
+        ];
+    } else if (role === "volunteer") {
+        navLinks = [
+            { name: "Current Events", href: "/campaigns" },
+            { name: "Dashboard", href: "/volunteer" },
             { name: "Donate", href: "/donate" },
             { name: "Contact", href: "/contact" },
         ];
-    } else if (role === "volunteer") {
-        if (vStatus === "registered") {
-            navLinks = [
-                { name: "Current Events", href: "/campaigns" },
-                { name: "Dashboard", href: "/volunteer" },
-                { name: "Donate", href: "/donate" },
-                { name: "Contact", href: "/contact" },
-            ];
-        } else {
-            navLinks = [
-                { name: "Contact", href: "/contact" },
-            ];
-        }
     }
 
     const handleLogout = async () => {
         try {
             await signOut(auth);
             localStorage.removeItem("volunteerStatus"); // Clear anything auxiliary
+            router.push("/");
         } catch (error) {
             console.error("Logout error", error);
         }
@@ -107,7 +102,7 @@ export default function Navbar() {
                             <div className="text-xs font-mono bg-amber-100 text-amber-800 px-2 py-1 rounded">
                                 Role: {role || "null"} | {user?.email || "No User"}
                             </div>
-                            
+
                             {loading ? (
                                 <div className="h-9 w-20 bg-slate-200 animate-pulse rounded-full"></div>
                             ) : user ? (
@@ -154,7 +149,7 @@ export default function Navbar() {
                             <div className="text-xs font-mono bg-amber-100 text-amber-800 px-3 py-2 rounded mb-2 text-center">
                                 Role: {role || "null"} | {user?.email || "No User"}
                             </div>
-                            
+
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.name}

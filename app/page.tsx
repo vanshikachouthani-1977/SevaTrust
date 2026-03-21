@@ -64,7 +64,7 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
-                  href="/login"
+                  href="/signup"
                   className="inline-flex justify-center items-center px-8 py-3.5 text-base font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-full transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                 >
                   Join Us Today

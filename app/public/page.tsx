@@ -11,8 +11,8 @@ export default function RoleSelection() {
             title: "Admin Portal",
             description: "Manage events, track funding progress, and oversee all platform operations. Full control over campaigns and volunteer assignments.",
             icon: Shield,
-            action: "Manage Platform",
-            href: "/admin/dashboard",
+            action: "Admin Access",
+            href: "/admin/login",
             color: "text-teal-600",
             bg: "bg-teal-50",
             buttonVariant: "primary" as const
@@ -21,8 +21,8 @@ export default function RoleSelection() {
             title: "Volunteer Zone",
             description: "Register as a volunteer, view your duty dashboard, and contribute your time to meaningful causes in your community.",
             icon: Users,
-            action: "Join the Team",
-            href: "/volunteer/dashboard", // Direct to dashboard for demo flow
+            action: "Login / Sign Up",
+            href: "/login?role=volunteer",
             color: "text-teal-600",
             bg: "bg-teal-50",
             buttonVariant: "primary" as const
@@ -31,11 +31,11 @@ export default function RoleSelection() {
             title: "Local User",
             description: "Browse active campaigns, donate physical goods like clothes and books, and stay updated on our community initiatives.",
             icon: Heart,
-            action: "Support a Cause",
-            href: "/donate",
+            action: "Login / Sign Up",
+            href: "/login?role=local",
             color: "text-teal-600",
             bg: "bg-teal-50",
-            buttonVariant: "secondary" as const // Using orange for user action emphasis? Or stick to teal for consistency. Screenshot shows teal. Sticking to teal (primary). Actually screenshot shows teal for all.
+            buttonVariant: "secondary" as const
         }
     ];
 

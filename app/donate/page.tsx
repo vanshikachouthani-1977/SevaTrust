@@ -4,10 +4,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/Card";
-import { Shirt, Book, Utensils, Apple, PenTool, Box, CheckCircle, X, ArrowLeft } from "lucide-react";
+import { Shirt, Book, Utensils, Apple, PenTool, Box, CheckCircle, X, ArrowLeft, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, query, where, orderBy, onSnapshot, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { useAuth } from "@/lib/AuthContext";
+import { useEffect } from "react";
 
 export default function DonationPortal() {
     const categories = [
@@ -22,6 +24,42 @@ export default function DonationPortal() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const { user } = useAuth();
+    const [myDonations, setMyDonations] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (!user) {
+            setMyDonations([]);
+            return;
+        }
+
+        const q = query(
+            collection(db, "donations"),
+            where("userId", "==", user.uid)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const donationsData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            // Sort by createdAt descending client-side to avoid Firebase index requirement
+            donationsData.sort((a: any, b: any) => {
+                const dateA = a.createdAt?.toMillis() || 0;
+                const dateB = b.createdAt?.toMillis() || 0;
+                return dateB - dateA;
+            });
+
+            const visibleDonations = donationsData.filter((d: any) => !d.hiddenFromPledges);
+            setMyDonations(visibleDonations);
+        }, (error) => {
+            console.error("Error fetching user donations:", error);
+        });
+
+        return () => unsubscribe();
+    }, [user]);
+
     // Form state
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
@@ -30,11 +68,23 @@ export default function DonationPortal() {
     const [quantity, setQuantity] = useState("");
     const [notes, setNotes] = useState("");
 
+    const handleDeletePledge = async (id: string) => {
+        if (confirm("Are you sure you want to remove this pledge from your recent pledges view?")) {
+            try {
+                await updateDoc(doc(db, "donations", id), { hiddenFromPledges: true });
+            } catch (error) {
+                console.error("Error hiding pledge:", error);
+                alert("Failed to remove pledge. Please try again.");
+            }
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
             await addDoc(collection(db, "donations"), {
+                userId: user?.uid || "guest",
                 category: selectedCategory,
                 name,
                 phone,
@@ -42,6 +92,7 @@ export default function DonationPortal() {
                 description,
                 quantity,
                 notes,
+                status: "pending",
                 createdAt: serverTimestamp()
             });
             alert("Your pledge has been received! Our team will contact you shortly.");
@@ -92,8 +143,52 @@ export default function DonationPortal() {
                     ))}
                 </div>
 
+                {/* My Donations Section */}
+                {user && myDonations.length > 0 && (
+                    <div className="mb-16 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm max-w-5xl mx-auto">
+                        <h2 className="text-2xl font-bold text-slate-800 mb-6 font-heading">My Recent Pledges</h2>
+                        <div className="space-y-4">
+                            {myDonations.map((donation) => (
+                                <div key={donation.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 rounded-xl border border-slate-100 bg-slate-50 gap-4">
+                                    <div>
+                                        <h3 className="font-bold text-slate-800">{donation.category}</h3>
+                                        <p className="text-sm text-slate-600">{donation.description} • Qty: {donation.quantity}</p>
+                                        <p className="text-xs text-slate-400 mt-1">
+                                            {donation.createdAt?.toDate ? donation.createdAt.toDate().toLocaleDateString() : 'Just now'}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        {donation.status === "pending" && (
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 shadow-sm border border-amber-200">
+                                                Pending Review
+                                            </span>
+                                        )}
+                                        {donation.status === "accepted" && (
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 shadow-sm border border-emerald-200">
+                                                <CheckCircle className="w-3 h-3 mr-1" /> Accepted
+                                            </span>
+                                        )}
+                                        {donation.status === "rejected" && (
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 shadow-sm border border-red-200">
+                                                <X className="w-3 h-3 mr-1" /> Declined
+                                            </span>
+                                        )}
+                                        <button
+                                            onClick={() => handleDeletePledge(donation.id)}
+                                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                            title="Delete Pledge"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* How Help Section */}
-                <div className="bg-orange-50 rounded-2xl p-8 md:p-12 border border-orange-100">
+                <div className="bg-orange-50 rounded-2xl p-8 md:p-12 border border-orange-100 mt-16 max-w-5xl mx-auto">
                     <h2 className="text-xl font-bold text-slate-800 mb-2">How Your Donations Help</h2>
                     <p className="text-slate-600 mb-8">Every contribution counts towards building a better community</p>
 
@@ -116,73 +211,72 @@ export default function DonationPortal() {
                         ))}
                     </div>
                 </div>
-            </div>
-
-            {/* Donation Modal */}
-            {selectedCategory && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                        {/* Modal Header */}
-                        <div className="flex justify-between items-start p-6 pb-2 border-b border-slate-100">
-                            <div>
-                                <div className="flex items-center space-x-2">
-                                    {(() => {
-                                        const cat = categories.find(c => c.name === selectedCategory);
-                                        const Icon = cat?.icon || Box;
-                                        return <Icon className="w-5 h-5 text-slate-700" />;
-                                    })()}
-                                    <h2 className="text-xl font-bold text-slate-800">Donate {selectedCategory}</h2>
+                {/* Donation Modal */}
+                {selectedCategory && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+                        <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                            {/* Modal Header */}
+                            <div className="flex justify-between items-start p-6 pb-2 border-b border-slate-100">
+                                <div>
+                                    <div className="flex items-center space-x-2">
+                                        {(() => {
+                                            const cat = categories.find(c => c.name === selectedCategory);
+                                            const Icon = cat?.icon || Box;
+                                            return <Icon className="w-5 h-5 text-slate-700" />;
+                                        })()}
+                                        <h2 className="text-xl font-bold text-slate-800">Donate {selectedCategory}</h2>
+                                    </div>
+                                    <p className="text-sm text-slate-500 mt-1">Fill in your details and we'll contact you to arrange collection</p>
                                 </div>
-                                <p className="text-sm text-slate-500 mt-1">Fill in your details and we'll contact you to arrange collection</p>
-                            </div>
-                            <button onClick={() => setSelectedCategory(null)} className="text-slate-400 hover:text-slate-600 transition-colors p-1">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        {/* Modal Form */}
-                        <form className="p-6 space-y-4" onSubmit={handleSubmit}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-slate-700">Your Name</label>
-                                    <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-slate-700">Phone Number</label>
-                                    <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
-                                </div>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <label className="text-sm font-semibold text-slate-700">Email Address</label>
-                                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@example.com" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-slate-700">Item Description</label>
-                                    <input type="text" required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., Winter jackets, textbooks" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-slate-700">Approximate Quantity</label>
-                                    <input type="text" required value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="e.g., 5 items, 2 boxes" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
-                                </div>
-                            </div>
-
-                            <div className="space-y-1.5 pb-2">
-                                <label className="text-sm font-semibold text-slate-700">Additional Notes</label>
-                                <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any specific details about the items or preferred collection time..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm leading-relaxed"></textarea>
-                            </div>
-
-                            <div className="pt-2 flex justify-end">
-                                <button type="submit" disabled={isSubmitting} className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors text-sm shadow-sm cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
-                                    {isSubmitting ? 'Submitting...' : 'Submit Pledge'}
+                                <button onClick={() => setSelectedCategory(null)} className="text-slate-400 hover:text-slate-600 transition-colors p-1">
+                                    <X className="w-5 h-5" />
                                 </button>
                             </div>
-                        </form>
+
+                            {/* Modal Form */}
+                            <form className="p-6 space-y-4" onSubmit={handleSubmit}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-semibold text-slate-700">Your Name</label>
+                                        <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-semibold text-slate-700">Phone Number</label>
+                                        <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-semibold text-slate-700">Email Address</label>
+                                    <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@example.com" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-semibold text-slate-700">Item Description</label>
+                                        <input type="text" required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="e.g., Winter jackets, textbooks" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-semibold text-slate-700">Approximate Quantity</label>
+                                        <input type="text" required value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="e.g., 5 items, 2 boxes" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm" />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5 pb-2">
+                                    <label className="text-sm font-semibold text-slate-700">Additional Notes</label>
+                                    <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any specific details about the items or preferred collection time..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-900 text-sm leading-relaxed"></textarea>
+                                </div>
+
+                                <div className="pt-2 flex justify-end">
+                                    <button type="submit" disabled={isSubmitting} className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors text-sm shadow-sm cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
+                                        {isSubmitting ? 'Submitting...' : 'Submit Pledge'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </main>
     );
 }
