@@ -85,24 +85,66 @@ export default function VolunteerRegisterPage() {
 
         setIsSubmitting(true);
         try {
-            // 1. Upload files to Storage
-            const aadhaarRef = ref(storage, `volunteers/${user.uid}/aadhaar_${aadhaarFile.name}`);
-            const photoRef = ref(storage, `volunteers/${user.uid}/photo_${photoFile.name}`);
-            
-            let aadhaarUrl = "https://via.placeholder.com/150?text=Aadhaar+Card";
-            let photoUrl = "https://via.placeholder.com/150?text=Photo";
+            // Helper to convert file to compressed Base64 if image, or raw Base64 if PDF
+            const fileToBase64 = async (file: File): Promise<string> => {
+                return new Promise((resolve, reject) => {
+                    if (file.type === "application/pdf") {
+                        if (file.size > 800000) {
+                            reject(new Error("PDF file too large. Please keep it under 800KB."));
+                            return;
+                        }
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = () => resolve(reader.result as string);
+                        reader.onerror = error => reject(error);
+                    } else {
+                        // Compress Image
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = (event) => {
+                            const img = new Image();
+                            img.src = event.target?.result as string;
+                            img.onload = () => {
+                                const canvas = document.createElement("canvas");
+                                const MAX_WIDTH = 800;
+                                const MAX_HEIGHT = 800;
+                                let width = img.width;
+                                let height = img.height;
+
+                                if (width > height) {
+                                    if (width > MAX_WIDTH) {
+                                        height *= MAX_WIDTH / width;
+                                        width = MAX_WIDTH;
+                                    }
+                                } else {
+                                    if (height > MAX_HEIGHT) {
+                                        width *= MAX_HEIGHT / height;
+                                        height = MAX_HEIGHT;
+                                    }
+                                }
+                                canvas.width = width;
+                                canvas.height = height;
+                                const ctx = canvas.getContext("2d");
+                                ctx?.drawImage(img, 0, 0, width, height);
+                                resolve(canvas.toDataURL("image/jpeg", 0.7));
+                            };
+                            img.onerror = error => reject(error);
+                        };
+                        reader.onerror = error => reject(error);
+                    }
+                });
+            };
+
+            let aadhaarUrl = "";
+            let photoUrl = "";
 
             try {
-                // Add a timeout to prevent hanging if Firebase Storage is not configured
-                const uploadPromise1 = uploadBytes(aadhaarRef, aadhaarFile).then(() => getDownloadURL(aadhaarRef));
-                const uploadPromise2 = uploadBytes(photoRef, photoFile).then(() => getDownloadURL(photoRef));
-                
-                const timeout = new Promise<string>((_, reject) => setTimeout(() => reject(new Error("Storage Timeout")), 6000));
-                
-                aadhaarUrl = await Promise.race([uploadPromise1, timeout]);
-                photoUrl = await Promise.race([uploadPromise2, timeout]);
-            } catch (storageErr) {
-                console.warn("Storage upload failed or timed out. Falling back to placeholder images.", storageErr);
+                aadhaarUrl = await fileToBase64(aadhaarFile);
+                photoUrl = await fileToBase64(photoFile);
+            } catch (err: any) {
+                alert("File error: " + err.message + "\n\nTry uploading a smaller image or compressed PDF.");
+                setIsSubmitting(false);
+                return;
             }
 
             // 2. Save application to Firestore

@@ -74,7 +74,7 @@ export default function Navbar() {
                         </div>
                         <div className="flex flex-col">
                             <span className="font-heading font-bold text-xl text-slate-800 leading-tight group-hover:text-teal-600 transition-colors">
-                                UnityConnect
+                                Seva Trust
                             </span>
                             <span className="text-xs text-slate-500 font-medium">
                                 Building Stronger Communities

@@ -16,8 +16,8 @@ export default function Footer() {
                                 <Heart className="w-6 h-6 fill-current" />
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-heading font-bold text-2xl leading-none">
-                                    UnityConnect
+                                <span className="font-heading font-bold text-xl text-white">
+                                    Seva Trust
                                 </span>
                                 <span className="text-xs text-slate-400 font-medium tracking-wide">
                                     Building Stronger Communities
@@ -97,7 +97,7 @@ export default function Footer() {
                 </div>
 
                 <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
-                    <p>© 2026 UnityConnect. All rights reserved.</p>
+                    <p>© 2026 Seva Trust. All rights reserved.</p>
                     <div className="flex space-x-6 mt-4 md:mt-0">
                         <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
                         <a href="#" className="hover:text-white transition-colors">Terms of Service</a>

@@ -65,7 +65,7 @@ export default function LoginPage() {
                         <Heart className="w-6 h-6 fill-current" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-800 font-heading">Welcome Back</h1>
-                    <p className="text-sm text-slate-500 mt-2">Please login to continue to UnityConnect</p>
+                    <p className="text-sm text-slate-500 mt-2">Please login to continue to Seva Trust</p>
                 </div>
 
                 <form className="relative space-y-5" onSubmit={handleSignIn}>

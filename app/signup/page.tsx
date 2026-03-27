@@ -63,7 +63,7 @@ export default function SignUpPage() {
                         <Heart className="w-6 h-6 fill-current" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-800 font-heading">Create Account</h1>
-                    <p className="text-sm text-slate-500 mt-2">Join UnityConnect to make a difference</p>
+                    <p className="text-sm text-slate-500 mt-2">Join Seva Trust to make a difference</p>
                 </div>
 
                 <form className="relative space-y-5" onSubmit={handleSignUp}>

@@ -1,4 +1,4 @@
-# SevaTrust - UnityConnect
+# Seva Trust
 
 A modern, responsive web application for SevaTrust NGO, built to empower communities through digital connection.
 

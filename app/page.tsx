@@ -60,7 +60,7 @@ export default function HomePage() {
                 Together We Can Create <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-teal-400">Lasting Change.</span>
               </h1>
               <p className="text-lg sm:text-xl text-slate-600 mb-8 leading-relaxed">
-                UnityConnect is dedicated to uplifting underprivileged communities through education, healthcare, and sustainable living initiatives. Join our mission to build a brighter future where everyone has the opportunity to thrive.
+                Seva Trust is dedicated to uplifting underprivileged communities through education, healthcare, and sustainable living initiatives. Join our mission to build a brighter future where everyone has the opportunity to thrive.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
@@ -151,9 +151,9 @@ export default function HomePage() {
             </div>
 
             <div className="order-1 lg:order-2">
-              <h2 className="text-3xl font-bold font-heading text-slate-900 mb-6">About UnityConnect</h2>
+              <h2 className="text-3xl font-bold font-heading text-slate-900 mb-6">About Seva Trust</h2>
               <p className="text-slate-600 mb-6 leading-relaxed text-lg">
-                Founded in 2015, UnityConnect started with a simple belief: that collective action can solve the most complex social challenges. We are a registered non-profit organization driven by a network of passionate volunteers, generous donors, and dedicated field workers.
+                Founded in 2015, Seva Trust started with a simple belief: that collective action can solve the most complex social challenges. We are a registered non-profit organization driven by a network of passionate volunteers, generous donors, and dedicated field workers.
               </p>
               <p className="text-slate-600 mb-8 leading-relaxed text-lg">
                 Over the past decade, we have grown from a small neighborhood initiative to a nationwide movement. Our core philosophy is not just to provide charity, but to enable self-reliance and build resilient communities from the ground up.
