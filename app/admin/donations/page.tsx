@@ -3,15 +3,17 @@
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { CheckCircle, XCircle, Clock, Package, Trash2 } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Package, Trash2, Download } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import * as XLSX from "xlsx";
 
 export default function IncomingDonations() {
     const [donations, setDonations] = useState<any[]>([]);
+    const [allDonations, setAllDonations] = useState<any[]>([]);
     const { role, loading } = useAuth();
     const router = useRouter();
 
@@ -29,6 +31,7 @@ export default function IncomingDonations() {
                 id: doc.id,
                 ...doc.data()
             }));
+            setAllDonations(data);
             const visibleDonations = data.filter((d: any) => !d.adminDeleted);
             setDonations(visibleDonations);
         });
@@ -65,6 +68,30 @@ export default function IncomingDonations() {
         }
     };
 
+    const exportDonationsToExcel = () => {
+        const exportData = allDonations.map(d => ({
+            "Donor Name": d.name || "Anonymous",
+            "Email": d.email || "N/A",
+            "Phone": d.phone || "N/A",
+            "Item Category": d.category || "N/A",
+            "Quantity/Amount": d.quantity || "N/A",
+            "Description": d.description || "N/A",
+            "Notes": d.notes || "",
+            "Status": d.status || "pending",
+            "Visible to Admin": d.adminDeleted ? "Hidden" : "Visible",
+            "Pledged Date": d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString() : "Unknown"
+        }));
+
+        if (exportData.length === 0) {
+            alert("No donation records to export.");
+            return;
+        }
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "All Donations History");
+        XLSX.writeFile(workbook, "Donations_Full_History.xlsx");
+    };
 
 
     return (
@@ -72,10 +99,18 @@ export default function IncomingDonations() {
             <Navbar />
 
             <div className="pt-24 pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-grow">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <div>
-                        <h1 className="text-3xl font-heading font-bold text-slate-900">Incoming Donations</h1>
-                        <p className="text-slate-600 mt-1">Review and accept physical item donation pledges from users.</p>
+                <div className="mb-8 bg-gradient-to-r from-teal-700 to-emerald-700 rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                    <div className="relative z-10 max-w-2xl">
+                        <h1 className="text-3xl sm:text-4xl font-heading font-extrabold mb-3 tracking-tight">Incoming Donations</h1>
+                        <p className="text-teal-50 text-base sm:text-lg font-medium">Review and accept physical item donation pledges from users.</p>
+                    </div>
+                    <div className="relative z-10 shrink-0">
+                        <Button
+                            onClick={exportDonationsToExcel}
+                            className="bg-white/20 hover:bg-white/30 backdrop-blur border border-white/30 text-white shadow-lg font-bold rounded-xl"
+                        >
+                            <Download className="w-5 h-5 mr-2" /> Export Full History
+                        </Button>
                     </div>
                 </div>
 

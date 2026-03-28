@@ -18,35 +18,35 @@ export default function Contact() {
                         Back to Home
                     </Link>
                 </div>
-                <div className="text-center mb-16">
-                    <h1 className="text-3xl md:text-4xl font-heading font-bold text-slate-900 mb-4">Get in Touch</h1>
-                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                        Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
-                    </p>
+                <div className="mb-16 bg-gradient-to-r from-teal-700 to-emerald-700 rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                    <div className="relative z-10 max-w-2xl">
+                        <h1 className="text-3xl sm:text-4xl font-heading font-extrabold mb-3 tracking-tight">Get in Touch</h1>
+                        <p className="text-teal-50 text-base sm:text-lg font-medium">Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+                    </div>
                 </div>
 
                 {/* Contact Info Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                    <div className="rounded-xl border border-orange-200 p-8 flex flex-col items-start hover:shadow-lg transition-shadow bg-orange-50/50">
-                        <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 mb-6">
+                    <div className="rounded-xl border border-teal-200 p-8 flex flex-col items-start hover:shadow-lg transition-shadow bg-teal-50/50">
+                        <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 mb-6">
                             <Phone className="w-6 h-6" />
                         </div>
                         <h3 className="font-bold text-lg text-slate-900 mb-2">Phone</h3>
                         <p className="text-slate-500 mb-4 text-sm">Mon-Fri from 9am to 6pm</p>
-                        <p className="text-orange-600 font-bold text-lg">+91 98765 43210</p>
+                        <p className="text-teal-600 font-bold text-lg">+91 98765 43210</p>
                     </div>
 
-                    <div className="rounded-xl border border-orange-200 p-8 flex flex-col items-start hover:shadow-lg transition-shadow bg-orange-50/50">
-                        <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 mb-6">
+                    <div className="rounded-xl border border-teal-200 p-8 flex flex-col items-start hover:shadow-lg transition-shadow bg-teal-50/50">
+                        <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 mb-6">
                             <Mail className="w-6 h-6" />
                         </div>
                         <h3 className="font-bold text-lg text-slate-900 mb-2">Email</h3>
                         <p className="text-slate-500 mb-4 text-sm">We'll respond within 24 hours</p>
-                        <p className="text-orange-600 font-bold text-lg">contact@ngo.org</p>
+                        <p className="text-teal-600 font-bold text-lg">contact@ngo.org</p>
                     </div>
 
-                    <div className="rounded-xl border border-orange-200 p-8 flex flex-col items-start hover:shadow-lg transition-shadow bg-orange-50/50">
-                        <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 mb-6">
+                    <div className="rounded-xl border border-teal-200 p-8 flex flex-col items-start hover:shadow-lg transition-shadow bg-teal-50/50">
+                        <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 mb-6">
                             <MapPin className="w-6 h-6" />
                         </div>
                         <h3 className="font-bold text-lg text-slate-900 mb-2">Office</h3>
@@ -93,7 +93,7 @@ export default function Contact() {
                                     <textarea rows={4} placeholder="Tell us about your inquiry..." className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
                                 </div>
 
-                                <Button size="lg" className="w-full md:w-auto bg-orange-600 hover:bg-orange-700 text-white">
+                                <Button size="lg" className="w-full md:w-auto bg-teal-600 hover:bg-teal-700 text-white">
                                     Send Message
                                 </Button>
                             </form>
@@ -103,7 +103,7 @@ export default function Contact() {
                     {/* Sidebar */}
                     <div className="space-y-8">
                         <div className="bg-white rounded-xl border border-zinc-200 p-8">
-                            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 mb-4">
+                            <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 mb-4">
                                 <Clock className="w-5 h-5" />
                             </div>
                             <h3 className="font-bold text-slate-900 mb-6">Office Hours</h3>
@@ -123,14 +123,14 @@ export default function Contact() {
                             </div>
                         </div>
 
-                        <div className="bg-orange-50 rounded-xl border border-orange-100 p-8">
+                        <div className="bg-teal-50 rounded-xl border border-teal-100 p-8">
                             <h3 className="font-bold text-slate-900 mb-4">Quick Links</h3>
                             <div className="space-y-3 text-sm">
-                                <a href="#" className="flex items-center text-orange-700 hover:underline">
+                                <a href="#" className="flex items-center text-teal-700 hover:underline">
                                     <Mail className="w-4 h-4 mr-2" />
                                     Volunteer Inquiries: volunteer@ngo.org
                                 </a>
-                                <a href="#" className="flex items-center text-orange-700 hover:underline">
+                                <a href="#" className="flex items-center text-teal-700 hover:underline">
                                     <Mail className="w-4 h-4 mr-2" />
                                     Corporate Partnerships: partnerships@ngo.org
                                 </a>

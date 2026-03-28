@@ -83,8 +83,8 @@ export default function HomePage() {
             <div className="relative animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
               <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl relative">
                 <img
-                  src="/hero_image_collage.png"
-                  alt="Volunteers helping children"
+                  src="/helping_elderly.png"
+                  alt="Volunteers helping elderly people"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>

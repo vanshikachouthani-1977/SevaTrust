@@ -122,11 +122,11 @@ export default function DonationPortal() {
                         Back to Home
                     </Link>
                 </div>
-                <div className="text-center mb-16">
-                    <h1 className="text-3xl md:text-4xl font-heading font-bold text-slate-900 mb-4">Donation Portal</h1>
-                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                        Your contributions make a real difference. Select a category below to pledge physical goods to those in need.
-                    </p>
+                <div className="mb-16 bg-gradient-to-r from-teal-700 to-emerald-700 rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                    <div className="relative z-10 max-w-2xl">
+                        <h1 className="text-3xl sm:text-4xl font-heading font-extrabold mb-3 tracking-tight">Donation Portal</h1>
+                        <p className="text-teal-50 text-base sm:text-lg font-medium">Your contributions make a real difference. Select a category below to pledge physical goods to those in need.</p>
+                    </div>
                 </div>
 
                 {/* Category Cards */}
@@ -188,7 +188,7 @@ export default function DonationPortal() {
                 )}
 
                 {/* How Help Section */}
-                <div className="bg-orange-50 rounded-2xl p-8 md:p-12 border border-orange-100 mt-16 max-w-5xl mx-auto">
+                <div className="bg-teal-50 rounded-2xl p-8 md:p-12 border border-teal-100 mt-16 max-w-5xl mx-auto">
                     <h2 className="text-xl font-bold text-slate-800 mb-2">How Your Donations Help</h2>
                     <p className="text-slate-600 mb-8">Every contribution counts towards building a better community</p>
 
@@ -200,7 +200,7 @@ export default function DonationPortal() {
                             { step: "4", title: "Make an Impact", desc: "Your items help those who need them most" },
                         ].map((item, idx) => (
                             <div key={idx} className="flex items-start gap-4">
-                                <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold flex-shrink-0">
                                     {item.step}
                                 </div>
                                 <div>
@@ -268,7 +268,7 @@ export default function DonationPortal() {
                                 </div>
 
                                 <div className="pt-2 flex justify-end">
-                                    <button type="submit" disabled={isSubmitting} className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors text-sm shadow-sm cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
+                                    <button type="submit" disabled={isSubmitting} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors text-sm shadow-sm cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
                                         {isSubmitting ? 'Submitting...' : 'Submit Pledge'}
                                     </button>
                                 </div>

@@ -358,8 +358,8 @@ export default function AdminVolunteers() {
             {/* Details Modal */}
             {detailsModal && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex justify-end">
-                    <div className="bg-white w-full max-w-xl h-full overflow-y-auto shadow-2xl animate-in fade-in slide-in-from-right duration-300">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 sticky top-0 z-10">
+                    <div className="bg-white w-full max-w-xl h-full shadow-2xl animate-in fade-in slide-in-from-right duration-300 flex flex-col">
+                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-shrink-0">
                             <div>
                                 <h3 className="font-extrabold text-slate-900 text-xl tracking-tight">Volunteer Details</h3>
                                 <p className="text-sm font-medium text-slate-500 mt-1">Review applicant and past performance</p>
@@ -368,7 +368,7 @@ export default function AdminVolunteers() {
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        <div className="p-8 pb-24 space-y-6">
+                        <div className="p-8 space-y-6 overflow-y-auto flex-1">
                             
                             {/* Profile Info */}
                             <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
@@ -407,9 +407,9 @@ export default function AdminVolunteers() {
                                         <span className="text-3xl font-extrabold text-emerald-700">{detailsModal.hoursVolunteered || 0}</span>
                                         <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider mt-1">Total Hours</span>
                                     </div>
-                                    <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100 flex flex-col items-center justify-center text-center">
-                                        <span className="text-3xl font-extrabold text-indigo-700">{detailsModal.eventsAttended || 0}</span>
-                                        <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider mt-1">Events Done</span>
+                                    <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100 flex flex-col items-center justify-center text-center">
+                                        <span className="text-3xl font-extrabold text-emerald-700">{detailsModal.eventsAttended || 0}</span>
+                                        <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider mt-1">Events Done</span>
                                     </div>
                                 </div>
                             )}
@@ -518,7 +518,7 @@ export default function AdminVolunteers() {
                                 </div>
                             )}
                         </div>
-                        <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 sticky bottom-0 z-10">
+                        <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 flex-shrink-0">
                             
                             {(detailsModal.status === "pending" || detailsModal.status === "pending_review") ? (
                                 <>

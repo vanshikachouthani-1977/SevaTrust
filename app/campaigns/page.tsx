@@ -190,14 +190,11 @@ export default function CampaignsPage() {
                         Back to Home
                     </Link>
                 </div>
-                <div className="text-center mb-12">
-                    <div className="inline-flex items-center justify-center px-4 py-1.5 mb-4 text-xs font-semibold text-teal-700 uppercase tracking-wide bg-teal-50 border border-teal-100 rounded-full">
-                        Our Campaigns
+                <div className="mb-10 bg-gradient-to-r from-teal-700 to-emerald-700 rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                    <div className="relative z-10 max-w-2xl">
+                        <h1 className="text-3xl sm:text-4xl font-heading font-extrabold mb-3 tracking-tight">Our Campaigns</h1>
+                        <p className="text-teal-50 text-base sm:text-lg font-medium">Explore our active campaigns and find ways to get involved. Every contribution makes a difference.</p>
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-heading font-bold text-slate-900 mb-6">Current Events</h1>
-                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                        Explore our active campaigns and find ways to get involved. Every contribution makes a difference.
-                    </p>
                 </div>
 
                 {role === "admin" && (

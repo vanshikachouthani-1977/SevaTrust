@@ -67,55 +67,46 @@ export default function MyActivityPage() {
         <main className="min-h-screen bg-slate-50 font-sans">
             <Navbar />
 
-            <div className="pt-24 pb-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="mb-8">
-                    <h1 className="text-3xl md:text-4xl font-heading font-bold text-slate-900 mb-2">My Activity</h1>
-                    <p className="text-slate-600">
-                        View your past contributions and the impact you've made.
-                    </p>
+            <div className="pt-24 pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="mb-10 bg-gradient-to-r from-teal-700 to-emerald-700 rounded-3xl p-8 sm:p-10 text-white shadow-xl relative overflow-hidden">
+                    <div className="relative z-10 max-w-2xl">
+                        <h1 className="text-3xl sm:text-4xl font-heading font-extrabold mb-3 tracking-tight">My Activity</h1>
+                        <p className="text-teal-50 text-base sm:text-lg font-medium">View your past contributions and the impact you've made.</p>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                    <Card className="bg-white border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 rounded-2xl group overflow-hidden relative">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
-                            <Heart className="w-32 h-32" />
-                        </div>
-                        <CardContent className="p-8 relative z-10">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-sm font-bold tracking-wider uppercase text-slate-500">Total Pledges</h3>
-                                <div className="p-3 bg-teal-50 border border-teal-100 rounded-xl text-teal-600 shadow-sm">
+                    <Card className="bg-white border-0 shadow-sm ring-1 ring-slate-100 transition-all duration-300 rounded-2xl group overflow-hidden relative">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-xs font-bold tracking-wider uppercase text-slate-500 pr-2">Total Pledges</h3>
+                                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-teal-50 border border-teal-100 rounded-xl text-teal-600 shadow-sm">
                                     <Heart className="w-5 h-5 fill-current" />
                                 </div>
                             </div>
-                            <div className="text-4xl font-extrabold text-slate-900">{donations.length}</div>
+                            <div className="text-3xl font-extrabold tracking-tight text-slate-900">{donations.length}</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 rounded-2xl group overflow-hidden relative">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
-                            <BookOpen className="w-32 h-32" />
-                        </div>
-                        <CardContent className="p-8 relative z-10">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-sm font-bold tracking-wider uppercase text-slate-500">Categories Supported</h3>
-                                <div className="p-3 bg-orange-50 border border-orange-100 rounded-xl text-orange-500 shadow-sm">
+                    <Card className="bg-white border-0 shadow-sm ring-1 ring-slate-100 transition-all duration-300 rounded-2xl group overflow-hidden relative">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-xs font-bold tracking-wider uppercase text-slate-500 pr-2">Categories Supported</h3>
+                                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-orange-50 border border-orange-100 rounded-xl text-orange-500 shadow-sm">
                                     <BookOpen className="w-5 h-5" />
                                 </div>
                             </div>
-                            <div className="text-4xl font-extrabold text-slate-900">{totalCategories}</div>
+                            <div className="text-3xl font-extrabold tracking-tight text-slate-900">{totalCategories}</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 rounded-2xl group overflow-hidden relative">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
-                            <Calendar className="w-32 h-32" />
-                        </div>
-                        <CardContent className="p-8 relative z-10">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-sm font-bold tracking-wider uppercase text-slate-500">Member Since</h3>
-                                <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl text-blue-500 shadow-sm">
+                    <Card className="bg-white border-0 shadow-sm ring-1 ring-slate-100 transition-all duration-300 rounded-2xl group overflow-hidden relative">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-xs font-bold tracking-wider uppercase text-slate-500 pr-2">Member Since</h3>
+                                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-blue-50 border border-blue-100 rounded-xl text-blue-500 shadow-sm">
                                     <Calendar className="w-5 h-5" />
                                 </div>
                             </div>
-                            <div className="text-2xl font-bold text-slate-900 mt-2">{memberSince}</div>
+                            <div className="text-2xl font-bold tracking-tight text-slate-900 mt-1">{memberSince}</div>
                         </CardContent>
                     </Card>
                 </div>

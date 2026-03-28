@@ -56,8 +56,8 @@ export default function Hero() {
                             {/* Main large image */}
                             <div className="col-span-8 row-span-2 rounded-2xl overflow-hidden shadow-xl border-4 border-white">
                                 <Image
-                                    src="/hero_image_collage.png"
-                                    alt="Community impact"
+                                    src="/helping_elderly.png"
+                                    alt="Volunteers helping elderly people"
                                     width={600}
                                     height={500}
                                     className="object-cover h-full w-full transform hover:scale-105 transition-transform duration-700"
