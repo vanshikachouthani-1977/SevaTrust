@@ -165,15 +165,15 @@ export default function VolunteerDashboard() {
                     {stats.map((s, i) => {
                         const Icon = s.icon;
                         return (
-                            <Card key={i} className="bg-white border-0 shadow-sm ring-1 ring-slate-100 rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group relative">
+                            <Card key={i} className="bg-white border-0 shadow-sm ring-1 ring-slate-100 rounded-2xl overflow-hidden transition-all duration-300 group relative">
                                 <CardContent className="p-5">
                                     <div className="flex items-center justify-between mb-3">
                                         <h3 className="text-xs font-bold text-slate-500 tracking-wider uppercase leading-tight pr-2">{s.label}</h3>
-                                        <div className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl ${s.bg} ${s.color} group-hover:scale-105 transition-transform duration-300`}>
+                                        <div className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl ${s.bg} ${s.color}`}>
                                             <Icon className="w-5 h-5" />
                                         </div>
                                     </div>
-                                    <div className="text-3xl font-extrabold tracking-tight text-slate-900 group-hover:text-teal-700 transition-colors duration-300">{s.value}</div>
+                                    <div className="text-3xl font-extrabold tracking-tight text-slate-900">{s.value}</div>
                                 </CardContent>
                             </Card>
                         )

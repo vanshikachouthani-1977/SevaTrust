@@ -221,7 +221,7 @@ export default function AdminVolunteers() {
     const renderList = activeTab === "pending" ? pendingList : acceptedList;
 
     return (
-        <main className="min-h-screen bg-slate-50 font-sans pb-16">
+        <main className="min-h-screen bg-white font-sans pb-16">
             <Navbar />
 
             <div className="pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -241,49 +241,83 @@ export default function AdminVolunteers() {
                 </div>
 
                 {/* Tabs */}
-                <div className="inline-flex bg-slate-100/80 p-1.5 rounded-2xl mb-8 border border-slate-200/50 shadow-inner overflow-x-auto w-full sm:w-auto">
-                    <button 
-                        onClick={() => setActiveTab("pending")}
-                        className={`px-6 py-2.5 text-sm font-bold whitespace-nowrap rounded-xl transition-all duration-300 ${activeTab === "pending" ? "bg-white text-teal-700 shadow-sm ring-1 ring-slate-200/50" : "text-slate-500 hover:text-slate-700"}`}
-                    >
-                        Pending Validations ({pendingList.length})
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab("accepted")}
-                        className={`px-6 py-2.5 text-sm font-bold whitespace-nowrap rounded-xl transition-all duration-300 ${activeTab === "accepted" ? "bg-white text-teal-700 shadow-sm ring-1 ring-slate-200/50" : "text-slate-500 hover:text-slate-700"}`}
-                    >
-                        Accepted Volunteers ({acceptedList.length})
-                    </button>
+                <div className="flex items-center gap-3 mb-8">
+                    <div className="inline-flex bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm overflow-x-auto w-full sm:w-auto">
+                        <button 
+                            onClick={() => setActiveTab("pending")}
+                            className={`flex items-center gap-2 px-6 py-3 text-sm font-bold whitespace-nowrap rounded-xl transition-all duration-300 ${activeTab === "pending" ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-md" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}
+                        >
+                            <Clock className="w-4 h-4" />
+                            Pending Validations
+                            <span className={`ml-1 text-xs font-extrabold px-2 py-0.5 rounded-full ${activeTab === "pending" ? "bg-white/25 text-white" : "bg-slate-100 text-slate-600"}`}>{pendingList.length}</span>
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab("accepted")}
+                            className={`flex items-center gap-2 px-6 py-3 text-sm font-bold whitespace-nowrap rounded-xl transition-all duration-300 ${activeTab === "accepted" ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-md" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}
+                        >
+                            <UserCheck className="w-4 h-4" />
+                            Accepted Volunteers
+                            <span className={`ml-1 text-xs font-extrabold px-2 py-0.5 rounded-full ${activeTab === "accepted" ? "bg-white/25 text-white" : "bg-slate-100 text-slate-600"}`}>{acceptedList.length}</span>
+                        </button>
+                    </div>
                 </div>
 
+                {/* Volunteer List */}
                 <div className="space-y-4">
                     {renderList.length === 0 && (
-                        <div className="text-center py-16 text-slate-500 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm">
-                            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 ring-8 ring-white">
-                                <FileText className="w-8 h-8 text-slate-400" />
+                        <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200 shadow-sm">
+                            <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-inner">
+                                <FileText className="w-10 h-10 text-slate-300" />
                             </div>
                             <p className="font-bold text-slate-700 text-xl">No {activeTab === "pending" ? "Pending" : "Accepted"} Volunteers Found</p>
-                            <p className="text-sm mt-2 max-w-xs mx-auto text-slate-500">Wait for a real volunteer to complete their registration.</p>
+                            <p className="text-sm mt-2 max-w-sm mx-auto text-slate-400 leading-relaxed">Wait for a real volunteer to complete their registration form to see entries here.</p>
                         </div>
                     )}
                     {renderList.map((volunteer) => (
-                        <Card key={volunteer.id} className="overflow-hidden bg-white border-0 shadow-sm ring-1 ring-slate-100 rounded-2xl hover:shadow-md transition-all duration-300 group">
-                            <CardContent className="p-5">
+                        <div key={volunteer.id} className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-lg hover:border-slate-300/80 transition-all duration-300 overflow-hidden group">
+                            <div className="p-5 sm:p-6">
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                                     {/* Left: Avatar + Info */}
                                     <div className="flex items-center gap-4 flex-1 min-w-0">
-                                        <div className="w-12 h-12 bg-gradient-to-br from-teal-100 to-teal-50 text-teal-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                                            <UserCheck className="w-6 h-6" />
+                                        <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-emerald-600 text-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-md shadow-teal-200/50 group-hover:shadow-lg group-hover:shadow-teal-200/60 transition-shadow">
+                                            <span className="text-lg font-extrabold">{(volunteer.fullName || "U").charAt(0).toUpperCase()}</span>
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <h3 className="text-base font-bold text-slate-900 truncate">{volunteer.fullName || "Unnamed User"}</h3>
-                                            <div className="text-sm text-slate-500 font-medium truncate">{volunteer.email} • {volunteer.phone}</div>
-                                            {activeTab === "accepted" && volunteer.campaign && (
-                                                <div className="flex flex-wrap items-center gap-2 mt-2">
-                                                    <span className="text-xs font-semibold bg-teal-50 text-teal-700 px-2.5 py-1 rounded-lg border border-teal-100">
-                                                        Assigned: {volunteer.campaign}
+                                            <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                                                <h3 className="text-base font-bold text-slate-900 truncate">{volunteer.fullName || "Unnamed User"}</h3>
+                                                {activeTab === "pending" && (
+                                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded-full">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                                        Awaiting Review
                                                     </span>
-                                                    <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-lg border ${volunteer.appointmentStatus === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                                                )}
+                                            </div>
+                                            <div className="text-sm text-slate-500 font-medium truncate">{volunteer.email} • {volunteer.phone}</div>
+                                            {volunteer.interest && (
+                                                <div className="mt-2">
+                                                    <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg">
+                                                        Interest: {volunteer.interest}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {activeTab === "accepted" && volunteer.campaign && (
+                                                <div className="flex flex-wrap items-center gap-2 mt-2.5">
+                                                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-teal-50 text-teal-700 px-3 py-1.5 rounded-lg border border-teal-200/80">
+                                                        <Calendar className="w-3 h-3" />
+                                                        {volunteer.campaign}
+                                                    </span>
+                                                    <span className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full border ${
+                                                        volunteer.appointmentStatus === 'accepted' 
+                                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                                                            : volunteer.appointmentStatus === 'declined'
+                                                            ? 'bg-red-50 text-red-600 border-red-200'
+                                                            : 'bg-amber-50 text-amber-600 border-amber-200'
+                                                    }`}>
+                                                        <span className={`w-1.5 h-1.5 rounded-full ${
+                                                            volunteer.appointmentStatus === 'accepted' ? 'bg-emerald-500' 
+                                                            : volunteer.appointmentStatus === 'declined' ? 'bg-red-500'
+                                                            : 'bg-amber-500'
+                                                        }`} />
                                                         {volunteer.appointmentStatus?.replace("_", " ") || "unknown"}
                                                     </span>
                                                 </div>
@@ -292,31 +326,31 @@ export default function AdminVolunteers() {
                                     </div>
 
                                     {/* Right: Action Buttons */}
-                                    <div className="flex items-center gap-2 flex-shrink-0 sm:ml-4">
-                                        <Button variant="outline" size="sm" className="rounded-xl border-slate-200 hover:bg-slate-50 font-semibold transition-colors text-sm" onClick={() => setDetailsModal(volunteer)}>
+                                    <div className="flex items-center gap-2.5 flex-shrink-0 sm:ml-4 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                                        <Button variant="outline" size="sm" className="rounded-xl border-slate-200 hover:bg-slate-50 hover:border-slate-300 font-semibold transition-all text-sm shadow-sm" onClick={() => setDetailsModal(volunteer)}>
                                             <Eye className="w-4 h-4 mr-1.5" /> Details & History
                                         </Button>
                                         
                                         {activeTab === "pending" && (
                                             <>
-                                                <Button size="sm" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all font-semibold text-sm" onClick={() => handleVerify(volunteer.id)}>
+                                                <Button size="sm" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow-md transition-all font-semibold text-sm" onClick={() => handleVerify(volunteer.id)}>
                                                     <CheckCircle className="w-4 h-4 mr-1.5" /> Verify
                                                 </Button>
-                                                <Button size="sm" className="rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-sm transition-all font-semibold text-sm" onClick={() => handleReject(volunteer.id)}>
+                                                <Button size="sm" className="rounded-xl bg-red-500 hover:bg-red-600 text-white shadow-sm hover:shadow-md transition-all font-semibold text-sm" onClick={() => handleReject(volunteer.id)}>
                                                     <X className="w-4 h-4 mr-1.5" /> Reject
                                                 </Button>
                                             </>
                                         )}
                                         
                                         {activeTab === "accepted" && (
-                                            <Button size="sm" className="rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-sm transition-all font-semibold text-sm" onClick={() => setAppointModal(volunteer)}>
+                                            <Button size="sm" className="rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-sm hover:shadow-md transition-all font-semibold text-sm" onClick={() => setAppointModal(volunteer)}>
                                                 <Calendar className="w-4 h-4 mr-1.5" /> Appoint
                                             </Button>
                                         )}
                                     </div>
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
                     ))}
                 </div>
             </div>
@@ -334,7 +368,7 @@ export default function AdminVolunteers() {
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        <div className="p-8 space-y-6">
+                        <div className="p-8 pb-24 space-y-6">
                             
                             {/* Profile Info */}
                             <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
@@ -484,7 +518,7 @@ export default function AdminVolunteers() {
                                 </div>
                             )}
                         </div>
-                        <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 sticky bottom-0">
+                        <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 sticky bottom-0 z-10">
                             
                             {(detailsModal.status === "pending" || detailsModal.status === "pending_review") ? (
                                 <>
